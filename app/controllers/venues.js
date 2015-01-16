@@ -1,4 +1,5 @@
 var Venue = require('../models/venue');
+var Request4S = require('../services/fs_request');
 
 exports.list = function(req, res) {
 	Venue.find(function(err, venues){
@@ -24,3 +25,18 @@ exports.create = function(fs_id, name, tags, response){
 		response.json(newVenue);
 	});
 };
+
+exports.search = function(req, res){
+	var ll = req.query.ll;
+	var tag = req.query.tag;
+
+	Request4S.get('venues/search','ll='+ll+'&query='+tag, function(d){
+		var response = d.response;
+		var venuesCount = d.response.venues.length;
+		console.log(venuesCount+' results found');
+		
+	});
+
+
+	res.json({'LatLong':ll, 'tag': tag});
+}
