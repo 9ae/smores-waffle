@@ -1,6 +1,6 @@
 module.exports - {
 	foursquare: {
-		'key':'',
+		'client_id':'',
 		'secret':''
 	}
 
