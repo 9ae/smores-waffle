@@ -42,11 +42,12 @@ function requestPhotos(venue){
 	});
 }
 
-function proccessNewVenue(fs_id, name, tag){
+function proccessNewVenue(json){
 	var newVenue = new Venue({
-		fs_id: fs_id,
-		name: name ,
-		tags: [tag]
+		fs_id: json.id,
+		name: json.name,
+		lat: json.location.lat,
+		lon: json.location.lng
 	});
 	newVenue.save(function(err){
 		if(err){
@@ -59,22 +60,19 @@ function proccessNewVenue(fs_id, name, tag){
 exports.do = function handleVenuesList(venues, tag){
 	matchedImages = [];
 
-	var QueryVenue = function(fs_id, name){
-		this.fs_id = fs_id;
-		this.name = name;
+	var QueryVenue = function(json){
+		this.json = json;
 	};
 
 	QueryVenue.prototype.find = function(){
-		console.log('Finding '+this.name+' with id='+this.fs_id);
-		var name = this.name;
-		var fs_id = this.fs_id;
+		var json = this.json;
 		Venue.findOne({'fs_id':this.fs_id}, function(err, vEntry){
 			if (err){
 				console.log(err);
 				return;
 			} 
 			if( vEntry===null){
-				proccessNewVenue(fs_id, name, tag);
+				proccessNewVenue(json);
 				return;
 			}
 
@@ -95,7 +93,7 @@ exports.do = function handleVenuesList(venues, tag){
 	// get proccessed venues by server
 	for(var i=0; i<venues.length; i++){
 		//Does venue exist
-		var v = new QueryVenue(venues[i].id, venues[i].name);
+		var v = new QueryVenue(venues[i]);
 		v.find();
 	}
 

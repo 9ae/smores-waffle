@@ -1,12 +1,12 @@
  var venues = require('../controllers/venues');
 
 module.exports = function(app){
-	app.get('/venues', venues.list);
+/*	app.get('/venues', venues.list);
 
 	app.post('/venues', function(req, res){
 		var jsonBody = req.body;
 		venues.create(jsonBody['fs_id'], jsonBody['name'], jsonBody['tags'], res);
-	});
+	}); */
 
 	app.get('/search', venues.search);
 

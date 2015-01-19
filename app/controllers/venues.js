@@ -12,11 +12,10 @@ exports.list = function(req, res) {
 	//res.send('lsit of venues');
 }
 
-exports.create = function(fs_id, name, tags, response){
+exports.create = function(fs_id, name,  response){
 	var newVenue = new Venue({
 		fs_id: fs_id,
-		name: name ,
-		tags: tags
+		name: name 
 	});
 	//console.log(newVenue);
 	newVenue.save(function(err){

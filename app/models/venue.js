@@ -5,8 +5,9 @@ var Picture = require('./picture');
 var VenueSchema = new mongoose.Schema({
 	fs_id: String,
 	name: String,
-	tags: {type: [String], index:true},
-	updateImages : {type: Boolean, default: false}
+	updateImages : {type: Boolean, default: false},
+	lat: {type: Number, default: 0},
+	lon: {type: Number, default: 0}
 });
 
 var Venue = mongoose.model('Venue', VenueSchema);
