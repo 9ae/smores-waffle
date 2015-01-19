@@ -6,7 +6,11 @@ var foursquareGetRequest = function(path, params, callback){
 	url+= '?v='+conf['api_version'];
 	url+= '&client_id='+conf['client_id'];
 	url+= '&client_secret='+conf['secret'];
-	url+= '&'+params;
+	// for testing only
+	url +='&limit=3'
+	if(params!=null){
+		url+= '&'+params;
+	}
 
 	var options = {
 		host : conf['hostname'],
@@ -15,7 +19,7 @@ var foursquareGetRequest = function(path, params, callback){
 		method: 'GET'
 	};
 
-	console.log(options);
+	console.log(url);
 
 	var req = https.request(options, function(res){
 		console.log("Got response: " + res.statusCode);

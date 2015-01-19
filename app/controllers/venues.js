@@ -1,5 +1,6 @@
 var Venue = require('../models/venue');
 var Request4S = require('../services/fs_request');
+var Algo = require('../services/algo');
 
 exports.list = function(req, res) {
 	Venue.find(function(err, venues){
@@ -30,13 +31,12 @@ exports.search = function(req, res){
 	var ll = req.query.ll;
 	var tag = req.query.tag;
 
+	var responseObject = {'found_results':0};
+
 	Request4S.get('venues/search','ll='+ll+'&query='+tag, function(d){
-		var response = d.response;
-		var venuesCount = d.response.venues.length;
-		console.log(venuesCount+' results found');
-		
+		Algo.do(d.response.venues, tag);
+		responseObject['found_results'] = d.response.venues.length;
+		res.json(responseObject);
 	});
 
-
-	res.json({'LatLong':ll, 'tag': tag});
 }
