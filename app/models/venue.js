@@ -14,10 +14,10 @@ var Venue = mongoose.model('Venue', VenueSchema);
 
 //find picture of venue with best match
 Venue.prototype.matchBestImage = function(tag){
-	var resultMap = {
+	/*var resultMap = {
 		'venue_fs_id': this.fs_id,
 		'venue_name': this.name
-	};
+	};*/
 
 	//TODO: we need a more optimal and accurate way to 
 	Picture.find({venue_id: this._id})
@@ -30,10 +30,12 @@ Venue.prototype.matchBestImage = function(tag){
 			if(err || pics.length==0){
 				return null;
 			}
+			/*
 			resultMap['picture_fs_id'] = pics[0].fs_id;
 			resultMap['picture_prefix'] = pics[0].prefix;
 			resultMap['picture_suffix'] = pics[0].suffix;
-			return resultMap;
+			return resultMap; */
+			return pics[0];
 		});
 };
 

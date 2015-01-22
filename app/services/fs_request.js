@@ -7,7 +7,6 @@ var foursquareGetRequest = function(path, params, callback){
 	url+= '&client_id='+conf['client_id'];
 	url+= '&client_secret='+conf['secret'];
 	// for testing only
-	url +='&limit=3'
 	if(params!=null){
 		url+= '&'+params;
 	}

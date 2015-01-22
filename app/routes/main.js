@@ -1,5 +1,6 @@
  var venues = require('../controllers/venues');
  var apps = require('../controllers/apps');
+  var seekers = require('../controllers/seekers');
 
 module.exports = function(app){
 /*	app.get('/venues', venues.list);
@@ -12,6 +13,8 @@ module.exports = function(app){
  	app.post('/register', apps.register);
 
 	app.get('/search', venues.search);
+
+	app.get('/check', seekers.check);
 
 	app.get('*', function(req, res) {
         res.sendfile('./public/views/index.html'); // load our public/index.html file
