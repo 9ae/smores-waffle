@@ -20,7 +20,12 @@ var SeekerSchema = new mongoose.Schema({
 
 var Seeker = mongoose.model('Seeker', SeekerSchema);
 
-function processPhoto(seeker, fsPhotoJson, venue_id){
+Seeker.prototype.addPicture = function(picture){
+	Picture.count({venue_id: picture.venue_id, picture})
+}
+
+Seeker.prototype.processPhoto =function(sPhotoJson, venue_id){
+	var seeker = this;
 	var img_url =  fsPhotoJson.prefix+'original'+fsPhotoJson.suffix;
 	console.log(img_url);
 	
@@ -46,34 +51,39 @@ function processPhoto(seeker, fsPhotoJson, venue_id){
 					name: tags[i].tag,
 					confidence: tags[i].confidence
 				});
-				if(seeker.tag==tags[i].tag){
-					seeker.pictures.push(picture);
-					seeker.save();
-				}
 			}
 			console.log(tags);
 			picture.save(); 
 		});
 	});
-	
-}
+};
 
-function requestPhotos(seeker, venue){
+Seeker.prototype.requestPhotos = function(venue){
+	var seeker = this;
 	Request4S.get('venues/'+venue.fs_id+'/photos','limit=10', function(d){
 		console.log(d);
 		var photos = d.response.photos.items;
 		var photosProccessor = photos.map(function(p){
-			return processPhoto(seeker, p, venue.id);
+			return seeker.processPhoto(seeker, p, venue.id);
 		});
 		
 		async.parallel(photosProccessor, function(err, results){
-			seeker.completed = true;
-			seeker.save();
+			vEntry.matchBestImage(seeker.tag, function(img){
+				if(img!=null){
+					seeker.picture.push(img);
+				}
+				seeker.discoveredVenues = seeker.discoveredVenues - 1;
+				if(seeker.discoveredVenues==0){
+					seeker.completed = true;
+				}
+				seeker.save();
+			});
 		});
 	});
-}
+};
 
-function proccessNewVenue(seeker, json){
+Seeker.prototype.proccessNewVenue = function(json){
+	var seeker = this;
 	var newVenue = new Venue({
 		fs_id: json.id,
 		name: json.name,
@@ -84,11 +94,12 @@ function proccessNewVenue(seeker, json){
 		if(err){
 			return console.log(err);
 		}
-		requestPhotos(seeker, newVenue);
+		seeker.requestPhotos(newVenue);
 	});
-}
+};
 
-function handleFoundVenues(seeker, venues){
+Seeker.prototype.handleFoundVenues = function(venues){
+	var seeker = this;
 	var venuesProccessFunctions = venues.map(function(json){
 		return function(callback){
 			Venue.findOne({'fs_id':json.id}, function(err, vEntry){
@@ -101,16 +112,18 @@ function handleFoundVenues(seeker, venues){
 					callback(null, 0);
 				}
 				else {
-					img = vEntry.matchBestImage(seeker.tag);
-					if (img!=null){
-						// add to result list
-						seeker.pictures.push(img);
-					}
-					else { // flag venue for update job
-						vEntry.updateImages = true;
-						vEntry.save();
-					}
-					callback(null, 1);
+					vEntry.matchBestImage(seeker.tag, function(img){
+						if (img!=null){
+							// add to result list
+							seeker.pictures.push(img);
+						}
+						else { // flag venue for update job
+							vEntry.updateImages = true;
+							vEntry.save();
+						}
+						callback(null, 1);
+					});
+					
 				}
 			});
 		};
@@ -124,11 +137,7 @@ function handleFoundVenues(seeker, venues){
 			seeker.completed = true;
 		}
 		
-		seeker.save(function(err){
-			if(err){
-				console.log(err);
-			}
-		});
+		seeker.save();
 	});
 
 };
@@ -143,10 +152,22 @@ Seeker.prototype.proccess = function(){
 				console.log(err);
 				return;
 			}
-			handleFoundVenues(seeker, d.response.venues);
+			seeker.handleFoundVenues(d.response.venues);
 		});
 		
 	});
+};
+
+Seeker.prototype.json = function(){
+	var converted = {};
+	var venueImages = [];
+	if(this.pictures.length>0){
+		venueImages = this.pictures.map(function(p){
+			return {
+				
+			};
+		});
+	}
 };
 
 module.exports = Seeker;
